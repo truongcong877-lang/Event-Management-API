@@ -2,14 +2,14 @@ from fastapi import FastAPI, status
 from app.core.config import settings
 from app.core.exceptions import register_exception_handlers
 from app.db.database import engine, Base
-import app.models  # Ensure models are loaded before create_all
+import app.models  # Đảm bảo các model đã được nạp trước khi gọi create_all
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
-# Register global exception handlers
+# Đăng ký các bộ xử lý ngoại lệ toàn cục
 register_exception_handlers(app)
 
-# Create database tables
+# Tạo các bảng trong cơ sở dữ liệu
 Base.metadata.create_all(bind=engine)
 
 
