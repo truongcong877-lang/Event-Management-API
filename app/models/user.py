@@ -1,7 +1,8 @@
+import enum
+from datetime import datetime
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum
 from sqlalchemy.orm import relationship
 from app.db.database import Base
-import enum
 
 class UserRole(str, enum.Enum):
     USER = "USER"
@@ -10,13 +11,13 @@ class UserRole(str, enum.Enum):
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True)
-    email = Column(String(255), unique=True, nullable=False)
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(255), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
     full_name = Column(String(100), nullable=False)
-    role = Column(Enum(UserRole), default=UserRole.USER)
-    is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, nullable=False)
+    role = Column(Enum(UserRole), default=UserRole.USER, nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     owned_events = relationship("Event", back_populates="owner", cascade="all, delete-orphan")
     staff_memberships = relationship("EventStaff", back_populates="user", cascade="all, delete-orphan")

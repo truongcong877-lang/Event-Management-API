@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, ConfigDict
 from app.schemas.user import UserResponse
-from app.models.event import StaffRole
+from app.models.event_staff import StaffRole
 
 class EventBase(BaseModel):
     name: str
