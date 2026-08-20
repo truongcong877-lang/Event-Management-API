@@ -3,6 +3,7 @@ from app.core.config import settings
 from app.core.exceptions import register_exception_handlers
 from app.db.database import engine, Base
 import app.models  # Đảm bảo các model đã được nạp trước khi gọi create_all
+from app.routers import auth, users
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
@@ -11,6 +12,10 @@ register_exception_handlers(app)
 
 # Tạo các bảng trong cơ sở dữ liệu
 Base.metadata.create_all(bind=engine)
+
+# Đăng ký các router
+app.include_router(auth.router)
+app.include_router(users.router)
 
 
 @app.get("/", tags=["Root"])
