@@ -10,7 +10,7 @@ from app.models.user import User, UserRole
 from app.schemas.auth import TokenData
 
 # Khai báo đường dẫn cấp token để hiển thị nút Authorize trên Swagger UI
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login/swagger")
 
 def get_current_user(
     token: str = Depends(oauth2_scheme),
