@@ -2,7 +2,7 @@ from fastapi import FastAPI, status
 from app.core.config import settings
 from app.core.exceptions import register_exception_handlers
 from app.db.database import engine, Base
-import app.models  # Đảm bảo các model đã được nạp trước khi gọi create_all
+import app.models  
 from app.routers import auth, users
 
 app = FastAPI(title=settings.PROJECT_NAME)

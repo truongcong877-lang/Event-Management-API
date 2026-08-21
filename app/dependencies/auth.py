@@ -1,70 +1,68 @@
-from typing import List, Callable
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
-
 from app.core.config import settings
+from app.core.exceptions import (
+    BadRequestException,
+    ForbiddenException,
+    UnauthorizedException,
+)
 from app.db.database import get_db
 from app.models.user import User, UserRole
 from app.schemas.auth import TokenData
 
-# Khai báo đường dẫn cấp token để hiển thị nút Authorize trên Swagger UI
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login/swagger")
+http_bearer = HTTPBearer()
 
-def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    db: Session = Depends(get_db)
-) -> User:
 
-    # đọc user từ JWT.
-
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Token xác thực không hợp lệ hoặc đã hết hạn.",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+def _decode_token(token: str) -> TokenData:
+    # Giải mã JWT và trả về TokenData
     try:
-        # Giải mã Token với Secret Key và Algorithm đã cấu hình
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
         user_id_str: str = payload.get("sub")
-        email: str = payload.get("email")
-        role: str = payload.get("role")
-        
         if user_id_str is None:
-            raise credentials_exception
-        token_data = TokenData(user_id=int(user_id_str), email=email, role=UserRole(role) if role else None)
+            raise UnauthorizedException("Token không chứa thông tin người dùng.")
+        return TokenData(
+            user_id=int(user_id_str),
+            email=payload.get("email"),
+            role=UserRole(payload.get("role")) if payload.get("role") else None,
+        )
     except (JWTError, ValueError):
-        # Lỗi nghiệp vụ (Xử lý lỗi token hết hạn/sai)
-        raise credentials_exception
+        raise UnauthorizedException("Token không hợp lệ hoặc đã hết hạn.")
 
-    # Lấy thông tin user từ cơ sở dữ liệu dựa trên user_id thu được từ Token
-    user = db.query(User).filter(User.id == token_data.user_id).first()
+
+def _get_user_by_id(db: Session, user_id: int) -> User:
+    # kiểm tra user trong db
+    user = db.query(User).filter(User.id == user_id).first()
     if user is None:
-        raise credentials_exception
+        raise UnauthorizedException("Người dùng không tồn tại.")
     return user
 
-def get_current_active_user(
-    current_user: User = Depends(get_current_user)
+
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(http_bearer),
+    db: Session = Depends(get_db),
 ) -> User:
-    # Kiểm tra người dùng hiện tại có ở trạng thái hoạt động (is_active=True) không.
+    # Lấy user từ JWT Bearer token
+    token_data = _decode_token(credentials.credentials)
+    return _get_user_by_id(db, token_data.user_id)
+
+
+def get_current_active_user(
+    current_user: User = Depends(get_current_user),
+) -> User:
+    # kiểm tra (is_active=True)
     if not current_user.is_active:
-        # Lỗi nghiệp vụ (Tài khoản không hoạt động)
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Tài khoản người dùng đã bị vô hiệu hóa."
-        )
+        raise BadRequestException("Tài khoản đã bị vô hiệu hóa.")
     return current_user
 
-def require_roles(*allowed_roles: UserRole) -> Callable:
 
-    # Phân quyền cơ bản USER/ADMIN
-    def role_checker(current_user: User = Depends(get_current_active_user)) -> User:
-        if current_user.role not in allowed_roles:
-            # Lỗi nghiệp vụ (Không đủ quyền hạn truy cập)
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Bạn không có quyền thực hiện thao tác này."
-            )
-        return current_user
-    return role_checker
+def require_admin(
+    current_user: User = Depends(get_current_active_user),
+) -> User:
+    # phân quyền admin
+    if current_user.role != UserRole.ADMIN:
+        raise ForbiddenException("Yêu cầu quyền ADMIN.")
+    return current_user
