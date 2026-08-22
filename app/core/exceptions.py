@@ -36,6 +36,8 @@ def create_error_response(status_code: int, message: str, details: dict = None):
         }
     )
 
+from fastapi.encoders import jsonable_encoder
+
 def register_exception_handlers(app: FastAPI):
     @app.exception_handler(AppException)
     async def app_exception_handler(request: Request, exc: AppException):
@@ -51,5 +53,6 @@ def register_exception_handlers(app: FastAPI):
         return create_error_response(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             message="Dữ liệu đầu vào không hợp lệ",
-            details={"errors": exc.errors()}
+            details={"errors": jsonable_encoder(exc.errors())}
         )
+

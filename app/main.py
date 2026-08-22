@@ -3,7 +3,7 @@ from app.core.config import settings
 from app.core.exceptions import register_exception_handlers
 from app.db.database import engine, Base
 import app.models  
-from app.routers import auth, users
+from app.routers import auth, users, event
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
@@ -16,6 +16,7 @@ Base.metadata.create_all(bind=engine)
 # Đăng ký các router
 app.include_router(auth.router)
 app.include_router(users.router)
+app.include_router(event.router)
 
 
 @app.get("/", tags=["Root"])
