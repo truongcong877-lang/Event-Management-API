@@ -6,7 +6,7 @@ from app.models.event import Event
 from app.models.event_staff import EventStaff
 from app.models.event_task import EventTask
 from app.models.user import User
-from app.schemas.event_task import EventTaskCreate, EventTaskUpdate
+from app.schemas.event_task import EventTaskCreate, EventTaskUpdate, TaskStatus
 
 
 def _get_task_or_404(db: Session, task_id: int) -> EventTask:
