@@ -1,8 +1,10 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, ConfigDict
-from app.schemas.user import UserResponse
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
 from app.models.event_task import TaskStatus, TaskPriority
+from app.schemas.user import UserResponse
+
 
 class EventTaskBase(BaseModel):
     title: str
@@ -14,12 +16,25 @@ class EventTaskCreate(EventTaskBase):
     assignee_id: Optional[int] = None
 
 class EventTaskUpdate(BaseModel):
-    title: Optional[str] = None
+    title: Optional[str] = Field(min_length=1, max_length=255)
     description: Optional[str] = None
     status: Optional[TaskStatus] = None
-    priority: Optional[TaskPriority] = None
+    priority: TaskPriority = TaskPriority.MEDIUM
     assignee_id: Optional[int] = None
     due_date: Optional[datetime] = None
+
+    @field_validator("title")
+    @classmethod
+    def validate_title(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None:
+            v = v.strip()
+
+            if not v:
+                raise ValueError("Tiêu đề không được để trống")
+
+        return v
+
+    model_config = ConfigDict(str_strip_whitespace=True)
 
 class EventTaskResponse(EventTaskBase):
     id: int
