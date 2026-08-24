@@ -70,7 +70,7 @@ def get_event_tasks(
 
 
 @router.get(
-    "/{task_id}",
+    "/event-tasks/{task_id}",
     response_model=EventTaskResponse,
 )
 def get_event_task(
@@ -86,7 +86,7 @@ def get_event_task(
 
 
 @router.patch(
-    "/{task_id}",
+    "/event-tasks/{task_id}",
     response_model=EventTaskResponse,
 )
 def update_event_task(
@@ -104,7 +104,7 @@ def update_event_task(
 
 
 @router.delete(
-    "/{task_id}",
+    "/event-tasks/{task_id}",
     status_code=status.HTTP_204_NO_CONTENT,
 )
 def delete_event_task(

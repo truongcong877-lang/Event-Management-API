@@ -91,6 +91,7 @@ def create_task(
         event_id=event_id,
         title=task_in.title,
         description=task_in.description,
+        status=task_in.status or TaskStatus.TODO,
         priority=task_in.priority,
         due_date=task_in.due_date,
         assignee_id=task_in.assignee_id,
@@ -103,7 +104,7 @@ def create_task(
     return task
 
 
-def get_task(
+def get_tasks(
     db: Session,
     event_id: int,
     current_user_id: int,
@@ -130,7 +131,7 @@ def get_task(
         query = query.filter(EventTask.assignee_id == assignee_id)
 
     if search:
-        query = query.filter(EventTask.title.ilike(f"%(search)%"))
+        query = query.filter(EventTask.title.ilike(f"%{search}%"))
 
     if sort_by == "due_date":
         sort_column = EventTask.due_date
