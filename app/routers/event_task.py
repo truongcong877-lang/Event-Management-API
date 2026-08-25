@@ -41,10 +41,7 @@ def get_event_tasks(
         None,
         alias="status",
     ),
-    priority_filter: Optional[TaskPriority] = Query(
-        None,
-        alias="priority",
-    ),
+    priority_filter: Optional[TaskPriority] = Query(None, alias="priority"),
     assignee_id: Optional[int] = None,
     search: Optional[str] = None,
     limit: int = Query(10, ge=1, le=100),
@@ -69,26 +66,18 @@ def get_event_tasks(
     )
 
 
-@router.get(
-    "/event-tasks/{task_id}",
-    response_model=EventTaskResponse,
-)
+@router.get("/event-tasks/{task_id}", response_model=EventTaskResponse)
 def get_event_task(
     task_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
     return event_task_service.get_task(
-        db=db,
-        task_id=task_id,
-        current_user_id=current_user.id,
+        db=db, task_id=task_id, current_user_id=current_user.id
     )
 
 
-@router.patch(
-    "/event-tasks/{task_id}",
-    response_model=EventTaskResponse,
-)
+@router.patch("/event-tasks/{task_id}", response_model=EventTaskResponse)
 def update_event_task(
     task_id: int,
     task_in: EventTaskUpdate,
@@ -103,17 +92,12 @@ def update_event_task(
     )
 
 
-@router.delete(
-    "/event-tasks/{task_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-)
+@router.delete("/event-tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_event_task(
     task_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
     event_task_service.delete_task(
-        db=db,
-        task_id=task_id,
-        current_user_id=current_user.id,
+        db=db, task_id=task_id, current_user_id=current_user.id
     )

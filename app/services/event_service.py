@@ -157,9 +157,7 @@ def add_member(
     return new_staff
 
 
-def remove_member(
-    db: Session, event_id: int, target_user_id: int, current_user_id: int
-) -> str:
+def remove_member(db: Session, event_id: int, target_user_id: int, current_user_id: int) -> str:
     # 1. Chỉ owner mới được xóa member
     _check_owner_permission(db, event_id, current_user_id)
 

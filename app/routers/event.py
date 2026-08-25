@@ -4,14 +4,7 @@ from typing import List, Optional
 
 from app.db.database import get_db
 from app.models.user import User
-from app.schemas.event import (
-    EventCreate,
-    EventUpdate,
-    EventResponse,
-    EventDetailResponse,
-    EventStaffCreate,
-    EventStaffResponse,
-)
+from app.schemas.event import  EventCreate, EventUpdate, EventResponse, EventDetailResponse, EventStaffCreate, EventStaffResponse
 from app.services import event_service as event_service
 from app.dependencies.auth import get_current_active_user
 

@@ -17,9 +17,7 @@ class EventCreate(EventBase):
 
 
 class EventUpdate(BaseModel):
-    name: Optional[str] = Field(
-        None, min_length=1, max_length=255, description="Tên sự kiện"
-    )
+    name: Optional[str] = Field(None, min_length=1, max_length=255, description="Tên sự kiện")
     description: Optional[str] = None
 
     @field_validator("name")
