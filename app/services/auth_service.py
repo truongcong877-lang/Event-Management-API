@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from app.core.exceptions import BadRequestException, UnauthorizedException
+from app.core.exceptions import bad_request, unauthorized
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models.user import User, UserRole
 from app.schemas.auth import Token, UserLogin, UserRegister
@@ -9,7 +9,7 @@ from app.schemas.auth import Token, UserLogin, UserRegister
 def register_user(db: Session, user_in: UserRegister) -> User:
     # đăng ký tài khoản
     if db.query(User).filter(User.email == user_in.email).first():
-        raise BadRequestException("Email đã được đăng ký trong hệ thống.")
+        raise bad_request("Email đã được đăng ký trong hệ thống.")
 
     new_user = User(
         email=user_in.email,
@@ -29,10 +29,10 @@ def authenticate_user(db: Session, login_data: UserLogin) -> Token:
     user = db.query(User).filter(User.email == login_data.email).first()
 
     if not user or not verify_password(login_data.password, user.password_hash):
-        raise UnauthorizedException("Email hoặc mật khẩu không chính xác.")
+        raise unauthorized("Email hoặc mật khẩu không chính xác.")
 
     if not user.is_active:
-        raise BadRequestException("Tài khoản đã bị vô hiệu hóa.")
+        raise bad_request("Tài khoản đã bị vô hiệu hóa.")
 
     access_token = create_access_token(
         subject=user.id,
