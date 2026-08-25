@@ -5,7 +5,7 @@ from app.routers import auth, users, event, event_task
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title=settings.PROJECT_NAME, version=settings.VERSION)
+app = FastAPI(title=settings.PROJECT_NAME)
 
 
 app.include_router(auth.router)

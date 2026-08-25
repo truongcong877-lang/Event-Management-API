@@ -3,11 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 from app.core.config import settings
-from app.core.exceptions import (
-    BadRequestException,
-    ForbiddenException,
-    UnauthorizedException,
-)
+from app.core.exceptions import ( bad_request, unauthorized, forbidden)
 from app.db.database import get_db
 from app.models.user import User, UserRole
 from app.schemas.auth import TokenData
@@ -23,21 +19,21 @@ def _decode_token(token: str) -> TokenData:
         )
         user_id_str: str = payload.get("sub")
         if user_id_str is None:
-            raise UnauthorizedException("Token không chứa thông tin người dùng.")
+            raise unauthorized("Token không chứa thông tin người dùng.")
         return TokenData(
             user_id=int(user_id_str),
             email=payload.get("email"),
             role=UserRole(payload.get("role")) if payload.get("role") else None,
         )
     except (JWTError, ValueError):
-        raise UnauthorizedException("Token không hợp lệ hoặc đã hết hạn.")
+        raise unauthorized("Token không hợp lệ hoặc đã hết hạn.")
 
 
 def _get_user_by_id(db: Session, user_id: int) -> User:
     # kiểm tra user trong db
     user = db.query(User).filter(User.id == user_id).first()
     if user is None:
-        raise UnauthorizedException("Người dùng không tồn tại.")
+        raise unauthorized("Người dùng không tồn tại.")
     return user
 
 
@@ -55,7 +51,7 @@ def get_current_active_user(
 ) -> User:
     # kiểm tra (is_active=True)
     if not current_user.is_active:
-        raise BadRequestException("Tài khoản đã bị vô hiệu hóa.")
+        raise bad_request("Tài khoản đã bị vô hiệu hóa.")
     return current_user
 
 
@@ -64,5 +60,5 @@ def require_admin(
 ) -> User:
     # phân quyền admin
     if current_user.role != UserRole.ADMIN:
-        raise ForbiddenException("Yêu cầu quyền ADMIN.")
+        raise forbidden("Yêu cầu quyền ADMIN.")
     return current_user
