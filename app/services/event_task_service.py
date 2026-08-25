@@ -8,16 +8,9 @@ from app.models.event_staff import EventStaff
 from app.models.event_task import EventTask
 from app.models.user import User
 
-from app.schemas.event_task import (
-    EventTaskCreate,
-    EventTaskUpdate,
-)
+from app.schemas.event_task import ( EventTaskCreate, EventTaskUpdate)
 
-from app.core.exceptions import (
-    bad_request,
-    forbidden,
-    not_found,
-)
+from app.core.exceptions import (bad_request, forbidden,not_found)
 
 
 def get_event_or_404(db: Session, event_id: int):
