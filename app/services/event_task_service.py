@@ -125,7 +125,7 @@ def get_tasks(
         query = query.filter(
             or_(
                 EventTask.title.ilike(f"%{search}%"),
-                EventTask.description.ilike(f"%{search}%"),
+                EventTask.description.ilike(f"%{search}%")
             )
         )
 
