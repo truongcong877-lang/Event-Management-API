@@ -32,7 +32,7 @@ def authenticate_user(db: Session, login_data: UserLogin) -> Token:
         raise unauthorized("Email hoặc mật khẩu không chính xác.")
 
     if not user.is_active:
-        raise bad_request("Tài khoản đã bị vô hiệu hóa.")
+        raise bad_request("Tài khoản đã bị khoá")
 
     access_token = create_access_token(
         subject=user.id,

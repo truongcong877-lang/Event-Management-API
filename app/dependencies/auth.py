@@ -1,4 +1,4 @@
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
@@ -51,7 +51,7 @@ def get_current_active_user(
 ) -> User:
     # kiểm tra (is_active=True)
     if not current_user.is_active:
-        raise bad_request("Tài khoản đã bị vô hiệu hóa.")
+        raise bad_request("Tài khoản đã bị khoá.")
     return current_user
 
 
